@@ -1,0 +1,321 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.uzielasto.app;
+
+import com.uzielasto.app.javasurf.src.main.java.org.javasurf.base.*;
+import com.uzielasto.app.scala.Quantizer;
+import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
+import org.apache.commons.math3.ml.clustering.DoublePoint;
+import scala.Tuple4;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+
+public class ImageAdjaster {
+
+
+    public static boolean invertFlag = false;
+
+    static float threshold = 190;
+    static float balanceValue = (float) 0.81;
+    static int octaves = 3;
+    public static boolean histogramEq = false;
+    public static boolean quantoIm = false;
+    public static boolean points = false;
+    public static boolean none = false;
+    private static final Logger log = Logger.getLogger(ImageAdjaster.class.getName());
+
+
+    static ArrayList interest_points;
+
+    public void initParams() {
+        float threshold = 30;
+        float balanceValue = (float) 1;
+        int octaves = 5;
+
+        BufferedImage img = null;
+
+
+        try {
+            File file = new File("\\uzi_proj\\my-app\\screens\\1359719961053screen.png");
+            img = ImageIO.read(file);
+            BufferedImage parent = img;
+            ISURFfactory mySURF = SURF.createInstance(img, balanceValue, threshold, octaves, img);
+            IDetector detector = mySURF.createDetector();
+            interest_points = detector.generateInterestPoints();
+            IDescriptor descriptor = mySURF.createDescriptor(interest_points);
+            descriptor.generateAllDescriptors();
+
+        } catch (Exception ex) {
+
+
+            ex.printStackTrace();
+        }
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(1);
+        JLabel label = new JLabel(new ImageIcon(img));
+        frame.getContentPane().add(label, BorderLayout.CENTER);
+        frame.pack();
+        frame.setVisible(true);
+
+
+    }
+
+    public static ArrayList<InterestPoint> prevDescriptors;
+    public static BufferedImage savedImageToCompare;
+    public static BufferedImage curImageToCompare;
+
+    public static BufferedImage surfImage(VideoImage mScreen, LinkedList<BufferedImage> li, int sq, BufferedImage img, int x, int y, int w, int h, BufferedImage parent) {
+        long startTime = System.currentTimeMillis();
+
+        BufferedImage findImage = img.getSubimage(x, y, Math.abs(w), Math.abs(h));
+        if (invertFlag) findImage = HistogramEq.invertImage(findImage);
+
+        if (histogramEq) findImage = HistogramEq.histogramEqualization(findImage);
+//        if (histogramEq) findImage = HistogramEq.histogramEqualization(findImage);
+
+        //strange surf
+//        curImageToCompare = findImage;
+//        if(savedImageToCompare!=null) {
+//        BufferedImage image = findImage;
+//        Graphics2D g2 = (Graphics2D) img.getGraphics();
+//        Surf board = new Surf(image);
+//        Map<SURFInterestPoint, SURFInterestPoint> matchingPoints = board.getMatchingPoints(board, false);
+//        image = img;
+//        Surf board2 = new Surf(image);
+//        matchingPoints = board.getMatchingPoints(board2, false);
+//        ImageAdjaster show = new ImageAdjaster(curImageToCompare,savedImageToCompare);
+//        show.drawConnectingPoints(g2,x,y);
+//            savedImageToCompare = findImage;
+//        }
+//        else {savedImageToCompare = findImage;}
+        //        ArrayList interest_points;
+
+
+        // g2.drawRect(x,y,w,h);
+        if (points) {
+            findImage = ElastoGo.getGrayScale(findImage);
+            img = ElastoGo.getGrayScale(img);
+
+            ISURFfactory mySURF = SURF.createInstance(findImage, balanceValue, threshold, octaves, img);
+            IDetector detector = mySURF.createDetector();
+            interest_points = detector.generateInterestPoints();
+
+            IDescriptor descriptor = mySURF.createDescriptor(interest_points);
+            descriptor.generateAllDescriptors();
+            img = ElastoGo.getRGBScale(img);
+            BufferedImage imgAcc = AppletMaker.deepCopy(img);
+            // img = Quantizer.quantoImageAveraged(li, img, x, y, w, h, sq);
+            if (quantoIm) img = Quantizer.quantoImageAveraged(mScreen, li, img, x, y, w, h, sq);
+            // if (invertFlag) img = HistogramEq.invertImage(img);
+
+            Graphics2D g2 = (Graphics2D) img.getGraphics();
+
+            g2.setColor(new Color(255, 249, 6));
+            drawInterestPointsG(g2, x, y, w, h, interest_points, img);
+
+            //  drawDescriptorsG(g2,x,y,interest_points);
+            //  draw lines in point matched
+            try {
+                if (prevDescriptors == null || interest_points.size() > 1000) {
+                    prevDescriptors = interest_points;
+                    threshold += 50;
+                } else {
+
+                    java.util.List<Tuple4<Integer, Integer, Integer, Integer>> lines = Quantizer.pointMatching(prevDescriptors, interest_points, g2, x, y);
+//                if (lines != null)
+//                    for (Tuple4<Integer, Integer, Integer, Integer> line : lines) {
+//                        // System.out.println((line._1()+x)+" "+(line._2()+y) + "    "+ (line._3()+x)+"  "+(line._4()+y));
+//                        float[] dashl = {5, 5};
+//                        BasicStroke pen = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 3, null, 0);
+//                        g2.setStroke(pen);
+//                        g2.setColor(new Color(255, 31, 0));
+//
+//                        if (!line.equals(new Tuple4<Integer, Integer, Integer, Integer>(0, 0, 0, 0))) {
+//                            g2.draw(createArrowShape(new Point(line._1() + x, line._2() + y), new Point(line._3() + x, line._4() + y)));
+//                        }
+//                        //if(Math.abs(line._1()-line._3())<30&&Math.abs(line._2()-line._4())<30)g2.drawLine(line._1()+x,line._2()+y,line._3()+x,line._4()+y);
+//                    }
+                    prevDescriptors.clear();
+                    prevDescriptors = interest_points;
+                }
+                SURF.setItNull();
+
+            } catch (Exception e) {
+                prevDescriptors = null;
+                log.log(Level.SEVERE, "Exception: ", e);
+            }
+        } else {
+            if (quantoIm) img = Quantizer.quantoImageAveraged(mScreen, li, img, x, y, w, h, sq);
+
+
+        }
+//        File out =new File("C:\\Users\\Aleksandr\\Desktop\\uzi_proj\\my-app\\surf1.png");
+//        try {
+//            ImageIO.write(newImg, "PNG", out);
+//        } catch (IOException ex) {
+//            Logger.getLogger(ImageAdjaster.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+
+
+//        JFrame frame = new JFrame();
+//        frame.setDefaultCloseOperation(1);
+//        JLabel label = new JLabel(new ImageIcon(newImg));
+//        frame.getContentPane().add(label, BorderLayout.CENTER);
+//        frame.pack();
+//        frame.setVisible(true);
+        // ... do something ...
+        long estimatedTime = System.currentTimeMillis() - startTime;
+        System.out.println("Estimated time  - " + estimatedTime);
+        return img;
+    }
+
+    static void drawDescriptorsG(Graphics2D g2d, int x, int y, ArrayList<InterestPoint> interest_points) {
+
+        //  System.out.println("Drawing Descriptors...");
+
+        for (int i = 0; i < interest_points.size(); i++) {
+
+            InterestPoint IP = (InterestPoint) interest_points.get(i);
+            IP.drawDescriptorWithG(new Color(197, 81, 146), g2d, x, y);
+
+        }
+
+    }
+
+    static void drawInterestPointsG(Graphics2D g2d, int x, int y, int w, int h, ArrayList<InterestPoint> interest_points, BufferedImage img) {
+
+        //  System.out.println("Drawing Interest Points...");
+        List<DoublePoint> points = new ArrayList<DoublePoint>();
+
+        for (InterestPoint interestPoint : interest_points) {
+            double[] d = new double[2];
+            d[0] = interestPoint.getX();
+            d[1] = interestPoint.getY();
+            points.add(new DoublePoint(d));
+        }
+        DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<>(10, 10);
+
+        List<org.apache.commons.math3.ml.clustering.Cluster<DoublePoint>> cluster = dbscan.cluster(points);
+
+        for (org.apache.commons.math3.ml.clustering.Cluster<DoublePoint> c : cluster) {
+            Random rnd = new Random();
+            Color color = new Color(rnd.nextInt());
+            for (DoublePoint point : c.getPoints()) {
+                double[] xyPoint = point.getPoint();
+                if ((int) xyPoint[0] < w && (int) xyPoint[1] < h) {
+                    InterestPoint ip = new InterestPoint((float) xyPoint[0], (float) xyPoint[1], 1, img);
+                    ip.drawPositionWithG(3, color, g2d, x, y);
+                }
+            }
+        }
+
+        //SIMPLE DRAW
+//        for (int i = 0; i < interest_points.size(); i++) {
+//
+//            InterestPoint IP = (InterestPoint) interest_points.get(i);
+//
+//            if ((int) IP.getX() < w && (int) IP.getY() < h) {
+//                IP.drawPositionWithG(3, new Color(92, 255, 59), g2d, x, y);
+//            }
+//
+//        }
+
+    }
+
+
+    //    static void drawDescriptors() {
+//
+//        //  System.out.println("Drawing Descriptors...");
+//
+//        for (int i = 0; i < interest_points.size(); i++) {
+//
+//
+//            InterestPoint IP = (InterestPoint) interest_points.get(i);
+//
+//            IP.drawDescriptor(new Color(197, 81, 146));
+//
+//        }
+//
+//    }
+//
+//
+//    static void drawInterestPoints() {
+//
+//        //  System.out.println("Drawing Interest Points...");
+//
+//        for (int i = 0; i < interest_points.size(); i++) {
+//
+//            InterestPoint IP = (InterestPoint) interest_points.get(i);
+//
+//            IP.drawPosition(5, new Color(92, 255, 59));
+//
+//        }
+//
+//    }
+    public static Shape createArrowShape(Point fromPt, Point toPt) {
+        Polygon arrowPolygon = new Polygon();
+        arrowPolygon.addPoint(-6, 0);
+        arrowPolygon.addPoint(3, 0);
+        arrowPolygon.addPoint(3, 1);
+        arrowPolygon.addPoint(6, 0);
+        arrowPolygon.addPoint(3, -1);
+        arrowPolygon.addPoint(3, 0);
+        arrowPolygon.addPoint(-6, 0);
+
+
+        Point midPoint = midpoint(fromPt, toPt);
+
+        double rotate = Math.atan2(toPt.y - fromPt.y, toPt.x - fromPt.x);
+
+        AffineTransform transform = new AffineTransform();
+        transform.translate(midPoint.x, midPoint.y);
+        double ptDistance = fromPt.distance(toPt);
+        double scale = ptDistance / 2; // 12 because it's the length of the arrow polygon.
+        transform.scale(scale, scale);
+        transform.rotate(rotate);
+
+        return transform.createTransformedShape(arrowPolygon);
+    }
+
+    public static BufferedImage substract(BufferedImage im1, BufferedImage im2) {
+        BufferedImage image = new BufferedImage(im1.getWidth(), im1.getHeight(),
+                BufferedImage.TYPE_BYTE_GRAY);
+        for (int i = 0; i < im1.getWidth() - 1; i++) {
+            for (int j = 0; j < im1.getHeight() - 1; j++) {
+                int first = im1.getRGB(i, j);
+                int sec = im2.getRGB(i, j);
+                int res = first - sec;
+                image.setRGB(i, j, res);
+            }
+
+        }
+        return image;
+    }
+
+    public static BufferedImage getGray(BufferedImage buf1) {
+        BufferedImage image = new BufferedImage(buf1.getWidth(), buf1.getHeight(),
+                BufferedImage.TYPE_BYTE_GRAY);
+        Graphics g = image.getGraphics();
+        g.drawImage(buf1, 0, 0, null);
+        g.dispose();
+        return image;
+    }
+
+    private static Point midpoint(Point p1, Point p2) {
+        return new Point((int) ((p1.x + p2.x) / 2.0),
+                (int) ((p1.y + p2.y) / 2.0));
+    }
+}
