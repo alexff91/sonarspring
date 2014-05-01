@@ -6,6 +6,7 @@ package com.uzielasto.app;
 
 import com.uzielasto.app.javasurf.src.main.java.org.javasurf.base.*;
 import com.uzielasto.app.scala.Quantizer;
+import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
 import org.apache.commons.math3.ml.clustering.DoublePoint;
 import scala.Tuple4;
@@ -195,7 +196,7 @@ public class ImageAdjaster {
 
     }
 
-    static void drawInterestPointsG(Graphics2D g2d, int x, int y, int w, int h, ArrayList<InterestPoint> interest_points, BufferedImage img) {
+    public static void  drawInterestPointsG(Graphics2D g2d, int x, int y, int w, int h, ArrayList<InterestPoint> interest_points, BufferedImage img) {
 
         //  System.out.println("Drawing Interest Points...");
         List<DoublePoint> points = new ArrayList<DoublePoint>();
@@ -209,9 +210,9 @@ public class ImageAdjaster {
         DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<>(10, 10);
 
         List<org.apache.commons.math3.ml.clustering.Cluster<DoublePoint>> cluster = dbscan.cluster(points);
-
         for (org.apache.commons.math3.ml.clustering.Cluster<DoublePoint> c : cluster) {
             Random rnd = new Random();
+            drawVoronoi(g2d, c,x,y);
             Color color = new Color(rnd.nextInt());
             for (DoublePoint point : c.getPoints()) {
                 double[] xyPoint = point.getPoint();
@@ -221,6 +222,7 @@ public class ImageAdjaster {
                 }
             }
         }
+
 
         //SIMPLE DRAW
 //        for (int i = 0; i < interest_points.size(); i++) {
@@ -265,6 +267,98 @@ public class ImageAdjaster {
 //        }
 //
 //    }
+
+    public static void drawVoronoi(Graphics2D g2, Cluster<DoublePoint> points, int x, int y) {
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        Polygon hull = new Polygon();
+
+        ArrayList<Point> arrayOfPoints = toArray(points,x,y);
+        for (Point p : execute(arrayOfPoints)) {
+            hull.addPoint(p.x, p.y);
+        }
+
+        if (hull.npoints > 0) {
+            g2.setColor(Color.ORANGE);
+            g2.drawPolygon(hull);
+        }
+    }
+
+    private static ArrayList<Point> toArray(Cluster<DoublePoint> points, int x, int y) {
+        ArrayList<Point> pointArrayList = new ArrayList<>();
+        for (DoublePoint point : points.getPoints()) {
+            double[] coord = point.getPoint();
+            pointArrayList.add(new Point((int) coord[0] + x, (int) coord[1] + y));
+        }
+        return pointArrayList;
+    }
+
+    public static ArrayList<Point> execute(ArrayList<Point> points) {
+        ArrayList<Point> xSorted = (ArrayList<Point>) points.clone();
+        Collections.sort(xSorted, new XCompare());
+
+        int n = xSorted.size();
+
+        Point[] lUpper = new Point[n];
+
+        lUpper[0] = xSorted.get(0);
+        lUpper[1] = xSorted.get(1);
+
+        int lUpperSize = 2;
+
+        for (int i = 2; i < n; i++) {
+            lUpper[lUpperSize] = xSorted.get(i);
+            lUpperSize++;
+
+            while (lUpperSize > 2 && !rightTurn(lUpper[lUpperSize - 3], lUpper[lUpperSize - 2], lUpper[lUpperSize - 1])) {
+                // Remove the middle point of the three last
+                lUpper[lUpperSize - 2] = lUpper[lUpperSize - 1];
+                lUpperSize--;
+            }
+        }
+
+        Point[] lLower = new Point[n];
+
+        lLower[0] = xSorted.get(n - 1);
+        lLower[1] = xSorted.get(n - 2);
+
+        int lLowerSize = 2;
+
+        for (int i = n - 3; i >= 0; i--) {
+            lLower[lLowerSize] = xSorted.get(i);
+            lLowerSize++;
+
+            while (lLowerSize > 2 && !rightTurn(lLower[lLowerSize - 3], lLower[lLowerSize - 2], lLower[lLowerSize - 1])) {
+                // Remove the middle point of the three last
+                lLower[lLowerSize - 2] = lLower[lLowerSize - 1];
+                lLowerSize--;
+            }
+        }
+
+        ArrayList<Point> result = new ArrayList<Point>();
+
+        for (int i = 0; i < lUpperSize; i++) {
+            result.add(lUpper[i]);
+        }
+
+        for (int i = 1; i < lLowerSize - 1; i++) {
+            result.add(lLower[i]);
+        }
+
+        return result;
+    }
+
+    private static boolean rightTurn(Point a, Point b, Point c) {
+        return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0;
+    }
+
+    private static class XCompare implements Comparator<Point> {
+        @Override
+        public int compare(Point o1, Point o2) {
+            return (new Integer(o1.x)).compareTo(new Integer(o2.x));
+        }
+    }
+
     public static Shape createArrowShape(Point fromPt, Point toPt) {
         Polygon arrowPolygon = new Polygon();
         arrowPolygon.addPoint(-6, 0);
