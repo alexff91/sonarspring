@@ -74,7 +74,7 @@ public class VideoImage extends JFrame {
         super();
 
         super.setDefaultLookAndFeelDecorated(true);
-        this.setTitle("UZI Elastography");
+        this.setTitle("IDAS");
         ImageIcon img = new ImageIcon("logo.gif");
 
         this.setIconImage(img.getImage());
@@ -138,7 +138,7 @@ public class VideoImage extends JFrame {
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
-        picLabel = new JLabel(new ImageIcon(myPicture));
+        picLabel = new JLabel(new ImageIcon());
 
         this.addComponentListener(new ComponentListener() {
             @Override

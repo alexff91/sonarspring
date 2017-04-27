@@ -136,19 +136,19 @@ public class ImageAdjaster {
                 } else {
 
                     java.util.List<Tuple4<Integer, Integer, Integer, Integer>> lines = Quantizer.pointMatching(prevDescriptors, interest_points, g2, x, y);
-//                if (lines != null)
-//                    for (Tuple4<Integer, Integer, Integer, Integer> line : lines) {
-//                        // System.out.println((line._1()+x)+" "+(line._2()+y) + "    "+ (line._3()+x)+"  "+(line._4()+y));
-//                        float[] dashl = {5, 5};
-//                        BasicStroke pen = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 3, null, 0);
-//                        g2.setStroke(pen);
-//                        g2.setColor(new Color(255, 31, 0));
-//
-//                        if (!line.equals(new Tuple4<Integer, Integer, Integer, Integer>(0, 0, 0, 0))) {
-//                            g2.draw(createArrowShape(new Point(line._1() + x, line._2() + y), new Point(line._3() + x, line._4() + y)));
-//                        }
-//                        //if(Math.abs(line._1()-line._3())<30&&Math.abs(line._2()-line._4())<30)g2.drawLine(line._1()+x,line._2()+y,line._3()+x,line._4()+y);
-//                    }
+                if (lines != null)
+                    for (Tuple4<Integer, Integer, Integer, Integer> line : lines) {
+                        // System.out.println((line._1()+x)+" "+(line._2()+y) + "    "+ (line._3()+x)+"  "+(line._4()+y));
+                        float[] dashl = {5, 5};
+                        BasicStroke pen = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 3, null, 0);
+                        g2.setStroke(pen);
+                        g2.setColor(new Color(255, 31, 0));
+
+                        if (!line.equals(new Tuple4<Integer, Integer, Integer, Integer>(0, 0, 0, 0))) {
+                            g2.draw(createArrowShape(new Point(line._1() + x, line._2() + y), new Point(line._3() + x, line._4() + y)));
+                        }
+                        //if(Math.abs(line._1()-line._3())<30&&Math.abs(line._2()-line._4())<30)g2.drawLine(line._1()+x,line._2()+y,line._3()+x,line._4()+y);
+                    }
                     prevDescriptors.clear();
                     prevDescriptors = interest_points;
                 }
@@ -207,33 +207,33 @@ public class ImageAdjaster {
             d[1] = interestPoint.getY();
             points.add(new DoublePoint(d));
         }
-        DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<>(10, 10);
-
-        List<org.apache.commons.math3.ml.clustering.Cluster<DoublePoint>> cluster = dbscan.cluster(points);
-        for (org.apache.commons.math3.ml.clustering.Cluster<DoublePoint> c : cluster) {
-            Random rnd = new Random();
-            drawVoronoi(g2d, c,x,y);
-            Color color = new Color(rnd.nextInt());
-            for (DoublePoint point : c.getPoints()) {
-                double[] xyPoint = point.getPoint();
-                if ((int) xyPoint[0] < w && (int) xyPoint[1] < h) {
-                    InterestPoint ip = new InterestPoint((float) xyPoint[0], (float) xyPoint[1], 1, img);
-                    ip.drawPositionWithG(3, color, g2d, x, y);
-                }
-            }
-        }
+//        DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<>(10, 10);
+//
+//        List<org.apache.commons.math3.ml.clustering.Cluster<DoublePoint>> cluster = dbscan.cluster(points);
+//        for (org.apache.commons.math3.ml.clustering.Cluster<DoublePoint> c : cluster) {
+//            Random rnd = new Random();
+//            drawVoronoi(g2d, c,x,y);
+//            Color color = new Color(rnd.nextInt());
+//            for (DoublePoint point : c.getPoints()) {
+//                double[] xyPoint = point.getPoint();
+//                if ((int) xyPoint[0] < w && (int) xyPoint[1] < h) {
+//                    InterestPoint ip = new InterestPoint((float) xyPoint[0], (float) xyPoint[1], 1, img);
+//                    ip.drawPositionWithG(3, color, g2d, x, y);
+//                }
+//            }
+//        }
 
 
         //SIMPLE DRAW
-//        for (int i = 0; i < interest_points.size(); i++) {
-//
-//            InterestPoint IP = (InterestPoint) interest_points.get(i);
-//
-//            if ((int) IP.getX() < w && (int) IP.getY() < h) {
-//                IP.drawPositionWithG(3, new Color(92, 255, 59), g2d, x, y);
-//            }
-//
-//        }
+        for (int i = 0; i < interest_points.size(); i++) {
+
+            InterestPoint IP = (InterestPoint) interest_points.get(i);
+
+            if ((int) IP.getX() < w && (int) IP.getY() < h) {
+                IP.drawPositionWithG(3, new Color(92, 255, 59), g2d, x, y);
+            }
+
+        }
 
     }
 

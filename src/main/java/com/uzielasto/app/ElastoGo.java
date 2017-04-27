@@ -57,7 +57,7 @@ public class ElastoGo {
     static Thread t3;
     static boolean deviceOrMovie = false;
     public static BufferedImage screenshot;
-    public static String inputVideo = "data\\2.avi";
+    public static String inputVideo = "";
     public static int milsBetwFr = 1;
     public static int sizeOfSqare = 2;
     public static boolean nuller = true;
