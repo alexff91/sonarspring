@@ -328,7 +328,7 @@ public class ElastoGo {
                 try {
                     obj.tain();
                 } catch (Exception e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
             }
         });
@@ -614,7 +614,7 @@ public class ElastoGo {
                             } while (false);
                         //  closeJavaWindow();    }
                     } catch (Exception e) {
-                        e.printStackTrace();
+//                        e.printStackTrace();
                     }
 
                 }
