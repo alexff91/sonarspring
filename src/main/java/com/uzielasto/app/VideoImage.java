@@ -33,7 +33,7 @@ public class VideoImage extends JFrame {
     public static JSlider slider = new JSlider(1, 30);
     public static JSlider pixelSlider = new JSlider(1, 10);
     public static JSlider octavesSlider = new JSlider(1, 10);
-    public static JSlider treshSlider = new JSlider(1, 800);
+    public static JSlider treshSlider = new JSlider(0, 800);
     public static JSlider balanseSlider = new JSlider(1, 20);
     public static JButton selectDev = new JButton("Connect to device");
     public static JButton zoomIn = new JButton("Zoom+");

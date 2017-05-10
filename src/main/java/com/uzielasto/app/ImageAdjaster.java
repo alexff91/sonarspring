@@ -36,13 +36,13 @@ import java.util.logging.Logger;
 
 public class ImageAdjaster {
 
-  public static boolean invertFlag = false;
+  public static boolean invertFlag = true;
 
-  static float threshold = 190;
+  static float threshold = 600;
 
   static float balanceValue = (float) 0.81;
 
-  static int octaves = 3;
+  static int octaves =  7;
 
   public static boolean histogramEq = false;
 
@@ -148,7 +148,7 @@ public class ImageAdjaster {
       //  drawDescriptorsG(g2,x,y,interest_points);
       //  draw lines in point matched
       try {
-        if (prevDescriptors == null || interest_points.size() > 1000) {
+        if (prevDescriptors == null || interest_points.size() > 2000) {
           prevDescriptors = interest_points;
           threshold += 50;
         } else {
@@ -228,7 +228,7 @@ public class ImageAdjaster {
       points.add(new DoublePoint(d));
     }
 
-    classifyObject(CarFinding.findClusters(points, img, g2d, x, y), g2d,x, y);
+    classifyObject(CarFinding.findClusters(points, img, g2d, x, y), g2d, x, y);
 
     //        DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<>(10, 10);
     //
@@ -278,10 +278,15 @@ public class ImageAdjaster {
               String.format(
                   "BEST MATCH: %s (%.2f%% likely)",
                   classOfObject, labelProbabilities[bestLabelIdx] * 100f));
-          g2d.setColor(Color.ORANGE);
-          g2d.setStroke(new BasicStroke(3));
-          g2d.drawString(classOfObject, x + (int) carData.getCenterPointX(),
-             y + (int) carData.getCenterPointY());
+          if (classOfObject.contains("car") || classOfObject.contains("van") || classOfObject
+              .contains("vagon") || classOfObject.contains("vehicle") || classOfObject.contains
+              ("train") || classOfObject.contains("truck") || classOfObject.contains("human") ||
+              classOfObject.contains("bicycle") || classOfObject.contains("container")) {
+            g2d.setColor(Color.RED);
+            g2d.setStroke(new BasicStroke(4));
+            g2d.drawString(classOfObject, x + (int) carData.getCenterPointX(),
+                y + (int) carData.getCenterPointY());
+          }
         }
         baos.close();
       } catch (IOException e) {

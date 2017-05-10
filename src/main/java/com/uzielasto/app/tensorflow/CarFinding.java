@@ -7,6 +7,7 @@ import org.apache.commons.math3.ml.clustering.DoublePoint;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,7 +25,7 @@ public class CarFinding {
     List<CarData> datalist = new ArrayList<>();
 
     DBSCANClusterer<org.apache.commons.math3.ml.clustering.DoublePoint> dbscan
-        = new DBSCANClusterer<>(70, 20);
+        = new DBSCANClusterer<>(35, 20);
 
     List<org.apache.commons.math3.ml.clustering.Cluster<DoublePoint>> cluster = dbscan
         .cluster(carPoints);
@@ -72,6 +73,7 @@ public class CarFinding {
       double width = maxx - minx;
       double height = maxy - miny;
       g2d.setColor(Color.ORANGE);
+      g2d.setStroke(new BasicStroke(5));
       g2d.drawRect((int) (x + minx), (int) (y + miny), (int) width, (int) height);
 
       System.out.println(regionOfInterest.getHeight() + " --" + height);
@@ -84,9 +86,10 @@ public class CarFinding {
       }
 
       BufferedImage croppedCar = regionOfInterest
-          .getSubimage((int) minx, (int) miny, (int) width, (int) height);
-      double centerPointX = width / 2;
-      double centerPointY = height / 2;
+          .getSubimage(Math.abs((int) minx - 5),Math.abs((int) miny-5), (int) width+5,
+              (int) height+5);
+      double centerPointX = minx + width / 2;
+      double centerPointY = miny + height / 2;
 
       datalist.add(new CarData(croppedCar, centerPointX, centerPointY));
     }
