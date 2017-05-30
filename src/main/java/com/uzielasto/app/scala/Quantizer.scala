@@ -1,10 +1,11 @@
 package com.uzielasto.app.scala
 
 
+import java.awt.geom.Arc2D
 import java.io.File
 import javax.imageio.ImageIO
 import java.awt.image._
-import com.uzielasto.app.{VideoImage, ImageAdjaster, ElastoGo}
+import com.uzielasto.app.{QuantizedImage, VideoImage, ImageAdjaster, ElastoGo}
 import java.util
 import com.uzielasto.app.javasurf.src.main.java.org.javasurf.base._
 import scala.{Int, Float}
@@ -53,7 +54,7 @@ object Quantizer extends App {
       x =>
         (yy to yy + h - 1).foreach({
           y =>
-          //the comarison of two images
+            //the comarison of two images
             val rgb = srcSecondImage.getRGB(x, y)
             val rgb1 = srcFirstImage.getRGB(x, y)
             //The value of eachcolor in rgb model
@@ -96,8 +97,10 @@ object Quantizer extends App {
     val srcSecondImage = scaleImage(toChange, scaleFactor, scaleFactor)
     frames = frames.map(scaleImage(_, scaleFactor, scaleFactor))
     val dest = scaleImage(toChange, scaleFactor, scaleFactor)
-    println("Time of all")
-    val currentTime = new Date();
+    //blue green yellow orange red pixels in each arc
+    val greenArcPoints = new Array[Int](5)
+    val orangeArcPoints = new Array[Int](5)
+    val redArcPoints = new Array[Int](5)
     (xx * scaleFactor to (xx + w - 1) * scaleFactor by sq).foreach({
       x =>
         (yy * scaleFactor to (yy + h - 1) * scaleFactor by sq).foreach({
@@ -132,51 +135,185 @@ object Quantizer extends App {
                 println("TITTTTLE")
                 videoIm.title = average + "";
               }
-              //println(average)
-              /*      OLD TODO
-              *  if ((b + 60) < 256 && (g + 60) < 256 && (r + 60) < 256) {
-                if (average < 20) {
-                  if (average < 6) dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(new Color(r + 60, g, b).getRGB()), 0, 0)
-                  if (average >= 10 && average < 20) dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(new Color(r, g + 60, b).getRGB()), 0, 0)
-                  if (average >= 6 && average < 10) dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(new Color(r + 60, g + 60, b).getRGB()), 0, 0)
-                } else {
-                  if (average >= 20 && average < 30) dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(new Color(r, g + 60, b + 60).getRGB()), 0, 0)
-                  if ((average >= 30)) dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(new Color(r, g, b + 60).getRGB()), 0, 0)
-                }
-              }*/
-              if ((b + 60) < 256 && (g + 60) < 256 && (r + 60) < 256) {
-                if (average < 60) {
-                  if (average < 20) dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(new Color(r , g, b+ 60).getRGB()), 0, 0)
-                  if (average >= 40 && average < 60) dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(new Color(r, g + 60, b).getRGB()), 0, 0)
-                  if (average >= 20 && average < 40) dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(new Color(r , g + 60, b+ 60).getRGB()), 0, 0)
-                } else {
-                  if (average >= 60 && average < 80) dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(new Color(r+60, g + 60, b).getRGB()), 0, 0)
-                  if ((average >= 80)) dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(new Color(r+60, g, b ).getRGB()), 0, 0)
-                }
-              }
-              else {
-                if (average < 40) {
-                  if (average < 6) {
-                    val blue: Color = new Color(70, 70, 255)
-                    dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(blue.getRGB()), 0, 0)
-                  }
-                  if (average >= 10 && average < 40) {
-                    val green: Color = new Color(70, 255, 70)
-                    dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(green.getRGB()), 0, 0)
-                  }
-                  if (average >= 6 && average < 10) {
-                    val cyan: Color = new Color(70, 255, 255)
-                    dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(cyan.getRGB()), 0, 0)
-                  }
-                } else {
-                  if (average >= 40 && average < 50) {
-                    val yellow: Color = new Color(255, 255, 70)
-                    dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(yellow.getRGB()), 0, 0)
-                  }
-                  if ((average >= 50)) {
-                    val red: Color = new Color(255, 70, 70)
-                    dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(red.getRGB()), 0, 0)
+              val greenArc = new Arc2D.Double(xx, yy + h * 1 / 4, w, h + h * 1 / 2,
+                0, 180, Arc2D.OPEN)
+              val orangeArc = new Arc2D.Double(xx, yy + h * 2 / 4, w,
+                h, 0, 180, Arc2D.OPEN)
+              val redArc = new Arc2D.Double(xx, yy + h * 3 / 4, w, h - h * 1 / 2, 0, 180,
+                Arc2D.OPEN)
 
+
+              if (redArc.contains(x, y) || orangeArc.contains(x, y) || greenArc.contains(x, y)) {
+                if ((b + 60) < 256 && (g + 60) < 256 && (r + 60) < 256) {
+                  if (average < 60) {
+                    if (average < 20) {
+                      dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(new Color(r,
+                        g, b + 60).getRGB()), 0, 0)
+                      if (redArc.contains(x, y)) {
+                        redArcPoints.update(0,
+                          redArcPoints.apply(0) + 1)
+                      } else if (orangeArc.contains(x,
+                        y)) {
+                        orangeArcPoints.update(0,
+                          orangeArcPoints.apply(0) + 1)
+                      } else if (greenArc.contains(x, y)) {
+                        greenArcPoints.update(0,
+                          greenArcPoints.apply(0) + 1)
+                      }
+                    }
+                    if (average >= 40 && average < 60) {
+                      dest.setRGB(x, y, sq, sq,
+                        Array.fill(sq * sq)(new Color(r, g + 60, b).getRGB()), 0, 0)
+                      if (redArc.contains(x, y)) {
+                        redArcPoints.update(1,
+                          redArcPoints.apply(1) + 1)
+                      } else if (orangeArc.contains(x,
+                        y)) {
+                        orangeArcPoints.update(1,
+                          orangeArcPoints.apply(1) + 1)
+                      } else if (greenArc.contains(x, y)) {
+                        greenArcPoints.update(1,
+                          greenArcPoints.apply(1) + 1)
+                      }
+                    }
+                    if (average >= 20 && average < 40) {
+                      dest.setRGB(x, y, sq, sq,
+                        Array.fill(sq * sq)(new Color(r, g + 60, b + 60).getRGB()), 0, 0)
+                      if (average >= 40 && average < 60) {
+                        dest.setRGB(x, y, sq, sq,
+                          Array.fill(sq * sq)(new Color(r, g + 60, b).getRGB()), 0, 0)
+                        if (redArc.contains(x, y)) {
+                          redArcPoints.update(2,
+                            redArcPoints.apply(2) + 1)
+                        } else if (orangeArc.contains(x,
+                          y)) {
+                          orangeArcPoints.update(2,
+                            orangeArcPoints.apply(2) + 1)
+                        } else if (greenArc.contains(x, y)) {
+                          greenArcPoints.update(2,
+                            greenArcPoints.apply(2) + 1)
+                        }
+                      }
+                    }
+                  } else {
+                    if (average >= 60 && average < 80) {
+                      dest.setRGB(x, y, sq, sq,
+                        Array.fill(sq * sq)(new Color(r + 60, g + 60, b).getRGB()), 0, 0)
+                      if (average >= 40 && average < 60) {
+                        dest.setRGB(x, y, sq, sq,
+                          Array.fill(sq * sq)(new Color(r, g + 60, b).getRGB()), 0, 0)
+                        if (redArc.contains(x, y)) {
+                          redArcPoints.update(3,
+                            redArcPoints.apply(3) + 1)
+                        } else if (orangeArc.contains(x,
+                          y)) {
+                          orangeArcPoints.update(3,
+                            orangeArcPoints.apply(3) + 1)
+                        } else if (greenArc.contains(x, y)) {
+                          greenArcPoints.update(3,
+                            greenArcPoints.apply(3) + 1)
+                        }
+                      }
+                    }
+                    if ((average >= 80)) {
+                      dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(new Color
+                      (r + 60, g, b).getRGB()), 0, 0)
+                      if (average >= 40 && average < 60) {
+                        dest.setRGB(x, y, sq, sq,
+                          Array.fill(sq * sq)(new Color(r, g + 60, b).getRGB()), 0, 0)
+                        if (redArc.contains(x, y)) {
+                          redArcPoints.update(4,
+                            redArcPoints.apply(4) + 1)
+                        } else if (orangeArc.contains(x,
+                          y)) {
+                          orangeArcPoints.update(4,
+                            orangeArcPoints.apply(4) + 1)
+                        } else if (greenArc.contains(x, y)) {
+                          greenArcPoints.update(4,
+                            greenArcPoints.apply(4) + 1)
+                        }
+                      }
+                    }
+                  }
+                }
+                else {
+                  if (average < 40) {
+                    if (average < 6) {
+                      val blue: Color = new Color(70, 70, 255)
+                      dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(blue.getRGB()), 0, 0)
+                      if (redArc.contains(x, y)) {
+                        redArcPoints.update(0,
+                          redArcPoints.apply(0) + 1)
+                      } else if (orangeArc.contains(x,
+                        y)) {
+                        orangeArcPoints.update(0,
+                          orangeArcPoints.apply(0) + 1)
+                      } else if (greenArc.contains(x, y)) {
+                        greenArcPoints.update(0,
+                          greenArcPoints.apply(0) + 1)
+                      }
+                    }
+                    if (average >= 10 && average < 40) {
+                      val green: Color = new Color(70, 255, 70)
+                      dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(green.getRGB()), 0, 0)
+                      if (redArc.contains(x, y)) {
+                        redArcPoints.update(2,
+                          redArcPoints.apply(2) + 1)
+                      } else if (orangeArc.contains(x,
+                        y)) {
+                        orangeArcPoints.update(2,
+                          orangeArcPoints.apply(2) + 1)
+                      } else if (greenArc.contains(x, y)) {
+                        greenArcPoints.update(2,
+                          greenArcPoints.apply(2) + 1)
+                      }
+                    }
+                    if (average >= 6 && average < 10) {
+                      val cyan: Color = new Color(70, 255, 255)
+                      dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(cyan.getRGB()), 0, 0)
+                      if (redArc.contains(x, y)) {
+                        redArcPoints.update(2,
+                          redArcPoints.apply(2) + 1)
+                      } else if (orangeArc.contains(x,
+                        y)) {
+                        orangeArcPoints.update(2,
+                          orangeArcPoints.apply(2) + 1)
+                      } else if (greenArc.contains(x, y)) {
+                        greenArcPoints.update(2,
+                          greenArcPoints.apply(2) + 1)
+                      }
+                    }
+                  } else {
+                    if (average >= 40 && average < 50) {
+                      val yellow: Color = new Color(255, 255, 70)
+                      dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(yellow.getRGB()), 0, 0)
+                      if (redArc.contains(x, y)) {
+                        redArcPoints.update(3,
+                          redArcPoints.apply(3) + 1)
+                      } else if (orangeArc.contains(x,
+                        y)) {
+                        orangeArcPoints.update(3,
+                          orangeArcPoints.apply(3) + 1)
+                      } else if (greenArc.contains(x, y)) {
+                        greenArcPoints.update(3,
+                          greenArcPoints.apply(3) + 1)
+                      }
+                    }
+                    if ((average >= 50)) {
+                      val red: Color = new Color(255, 70, 70)
+                      dest.setRGB(x, y, sq, sq, Array.fill(sq * sq)(red.getRGB()), 0, 0)
+                      if (redArc.contains(x, y)) {
+                        redArcPoints.update(4,
+                          redArcPoints.apply(4) + 1)
+                      } else if (orangeArc.contains(x,
+                        y)) {
+                        orangeArcPoints.update(4,
+                          orangeArcPoints.apply(4) + 1)
+                      } else if (greenArc.contains(x, y)) {
+                        greenArcPoints.update(4,
+                          greenArcPoints.apply(4) + 1)
+                      }
+                    }
                   }
                 }
               }
@@ -185,11 +322,10 @@ object Quantizer extends App {
             }
         })
     })
-    val old = new Date()
-    println("Time Of computing" + getDateDiff(currentTime, old, TimeUnit.MILLISECONDS))
 
 
-    scaleImage(dest, 1 / scaleFactor, 1 / scaleFactor)
+    new QuantizedImage(scaleImage(dest, 1 / scaleFactor, 1 / scaleFactor),greenArcPoints,
+    orangeArcPoints,redArcPoints)
   }
 
   def getDateDiff(date1: Date, date2: Date, timeUnit: TimeUnit) = {

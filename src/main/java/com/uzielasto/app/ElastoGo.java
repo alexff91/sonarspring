@@ -206,10 +206,10 @@ public class ElastoGo {
 
                         t2.suspend();
                         t3.suspend();
-                        nuller = false;
+                      nuller = false;
 
-                        if (deviceOrMovie) {
-                            deviceOrMovie = false;
+                      if (deviceOrMovie) {
+                        deviceOrMovie = false;
 
                             mScreen.selectDev.setText("Select device");
 
@@ -714,6 +714,7 @@ public class ElastoGo {
 
 
                 }
+
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Exception: ", e);
             }

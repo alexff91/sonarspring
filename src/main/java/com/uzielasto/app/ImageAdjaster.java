@@ -21,6 +21,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Arc2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -38,11 +39,11 @@ public class ImageAdjaster {
 
   public static boolean invertFlag = true;
 
-  static float threshold = 600;
+  static float threshold = 500;
 
   static float balanceValue = (float) 0.81;
 
-  static int octaves =  7;
+  static int octaves = 7;
 
   public static boolean histogramEq = false;
 
@@ -59,7 +60,7 @@ public class ImageAdjaster {
   public void initParams() {
     float threshold = 30;
     float balanceValue = (float) 1;
-    int octaves = 5;
+    int octaves = 8;
 
     BufferedImage img = null;
 
@@ -102,6 +103,7 @@ public class ImageAdjaster {
     if (histogramEq) {
       findImage = HistogramEq.histogramEqualization(findImage);
     }
+
     //        if (histogramEq) findImage = HistogramEq.histogramEqualization(findImage);
 
     //strange surf
@@ -130,17 +132,40 @@ public class ImageAdjaster {
       IDetector detector = mySURF.createDetector();
       interest_points = detector.generateInterestPoints();
 
-      IDescriptor descriptor = mySURF.createDescriptor(interest_points);
-      descriptor.generateAllDescriptors();
+      //      IDescriptor descriptor = mySURF.createDescriptor(interest_points);
+      //      descriptor.generateAllDescriptors();
       img = ElastoGo.getRGBScale(img);
       BufferedImage imgAcc = AppletMaker.deepCopy(img);
       // img = Quantizer.quantoImageAveraged(li, img, x, y, w, h, sq);
+      Graphics2D g2 = (Graphics2D) img.getGraphics();
       if (quantoIm) {
-        img = Quantizer.quantoImageAveraged(mScreen, li, img, x, y, w, h, sq);
+        QuantizedImage quantizedImage = Quantizer.quantoImageAveraged(mScreen, li, img, x, y, w,
+            h, sq);
+        img = quantizedImage.getImage();
+        g2 = (Graphics2D) img.getGraphics();
+        Font font = new Font("Serif", Font.PLAIN, 30);
+        g2.setFont(font);
+        if (quantizedImage.getRedArcValues()[4] >= 20) {
+          g2.setColor(new Color(255, 19, 0));
+          g2.drawString("Emergency! Collision prediction", w / 3, h / 3);
+        } else if (quantizedImage.getRedArcValues()[4] >= 10) {
+          g2.setColor(new Color(255, 187, 41));
+          g2.drawString("Objects in a safety zone", w / 3, h / 3);
+        } else if (quantizedImage.getOrangeArcValues()[4] >= 20) {
+          g2.setColor(new Color(255, 239, 9));
+          g2.drawString("Collision ahead prediction", w / 3, h / 3);
+        } else if (quantizedImage.getOrangeArcValues()[4] >= 10) {
+          g2.setColor(new Color(159, 255, 0));
+          g2.drawString("Possible collision ahead", w / 3, h / 3);
+        } else if (quantizedImage.getGreenArcValues()[4] >= 20) {
+          g2.setColor(new Color(255, 239, 9));
+          g2.drawString("Collision ahead prediction", w / 3, h / 3);
+        } else if (quantizedImage.getGreenArcValues()[4] >= 10) {
+          g2.setColor(new Color(159, 255, 0));
+          g2.drawString("Possible collision ahead", w / 3, h / 3);
+        }
       }
       // if (invertFlag) img = HistogramEq.invertImage(img);
-
-      Graphics2D g2 = (Graphics2D) img.getGraphics();
 
       g2.setColor(new Color(255, 249, 6));
       drawInterestPointsG(g2, x, y, w, h, interest_points, img);
@@ -148,13 +173,14 @@ public class ImageAdjaster {
       //  drawDescriptorsG(g2,x,y,interest_points);
       //  draw lines in point matched
       try {
-        if (prevDescriptors == null || interest_points.size() > 2000) {
+        if (prevDescriptors == null || interest_points.size() > 5500) {
           prevDescriptors = interest_points;
           threshold += 50;
         } else {
 
-          java.util.List<Tuple4<Integer, Integer, Integer, Integer>> lines = Quantizer
-              .pointMatching(prevDescriptors, interest_points, g2, x, y);
+          java.util.List<Tuple4<Integer, Integer, Integer, Integer>> lines = null;
+          //          lines = Quantizer
+          //              .pointMatching(prevDescriptors, interest_points, g2, x, y);
           if (lines != null) {
             for (Tuple4<Integer, Integer, Integer, Integer> line : lines) {
               // System.out.println((line._1()+x)+" "+(line._2()+y) + "    "+ (line._3()+x)+"  "+(line._4()+y));
@@ -164,7 +190,7 @@ public class ImageAdjaster {
               g2.setStroke(pen);
               g2.setColor(new Color(255, 31, 0));
 
-              if (!line.equals(new Tuple4<Integer, Integer, Integer, Integer>(0, 0, 0, 0))) {
+              if (!line.equals(new Tuple4<>(0, 0, 0, 0))) {
                 g2.draw(createArrowShape(new Point(line._1() + x, line._2() + y),
                     new Point(line._3() + x, line._4() + y)));
               }
@@ -181,7 +207,32 @@ public class ImageAdjaster {
       }
     } else {
       if (quantoIm) {
-        img = Quantizer.quantoImageAveraged(mScreen, li, img, x, y, w, h, sq);
+        QuantizedImage quantizedImage = Quantizer.quantoImageAveraged(mScreen, li, img, x, y, w,
+            h, sq);
+        img = quantizedImage.getImage();
+
+        Graphics2D g2 = (Graphics2D) img.getGraphics();
+        Font font = new Font("Serif", Font.PLAIN, 30);
+        g2.setFont(font);
+        if (quantizedImage.getRedArcValues()[4] >= 10) {
+          g2.setColor(new Color(255, 19, 0));
+          g2.drawString("Emergency! Collision prediction", w / 3, h / 3);
+        } else if (quantizedImage.getRedArcValues()[4] >= 0) {
+          g2.setColor(new Color(255, 187, 41));
+          g2.drawString("Emergency! Possible collision", w / 3, h / 3);
+        } else if (quantizedImage.getOrangeArcValues()[4] >= 10) {
+          g2.setColor(new Color(255, 239, 9));
+          g2.drawString("Emergency! Collision ahead prediction", w / 3, h / 3);
+        } else if (quantizedImage.getOrangeArcValues()[4] >= 0) {
+          g2.setColor(new Color(159, 255, 0));
+          g2.drawString("Emergency! Possible collision ahead", w / 3, h / 3);
+        } else if (quantizedImage.getGreenArcValues()[4] >= 10) {
+          g2.setColor(new Color(255, 239, 9));
+          g2.drawString("Emergency! Collision ahead prediction", w / 3, h / 3);
+        } else if (quantizedImage.getGreenArcValues()[4] >= 0) {
+          g2.setColor(new Color(159, 255, 0));
+          g2.drawString("Emergency! Possible collision ahead", w / 3, h / 3);
+        }
       }
     }
     //        File out =new File("C:\\Users\\Aleksandr\\Desktop\\uzi_proj\\my-app\\surf1.png");
@@ -198,8 +249,6 @@ public class ImageAdjaster {
     //        frame.pack();
     //        frame.setVisible(true);
     // ... do something ...
-    long estimatedTime = System.currentTimeMillis() - startTime;
-    System.out.println("Estimated time  - " + estimatedTime);
     return img;
   }
 
@@ -215,20 +264,32 @@ public class ImageAdjaster {
     }
   }
 
-  public static void drawInterestPointsG(Graphics2D g2d, int x, int y, int w, int h,
+  public static void drawInterestPointsG(Graphics2D g2d, int x, int y, int width, int height,
       ArrayList<InterestPoint> interest_points, BufferedImage img) {
 
     //  System.out.println("Drawing Interest Points...");
     List<DoublePoint> points = new ArrayList<DoublePoint>();
+    Arc2D.Double greenArc = new Arc2D.Double(x, y + height * 1 / 4, width,
+        height + height * 1 / 2, 0, 180,
+        Arc2D.OPEN);
+    Arc2D.Double orangeArc = new Arc2D.Double(x, y + height * 2 / 4, width,
+        height, 0, 180,
+        Arc2D.OPEN);
+    Arc2D.Double redArc = new Arc2D.Double(x, y + height * 3 / 4, width,
+        height - height * 1 / 2, 0, 180,
+        Arc2D.OPEN);
 
     for (InterestPoint interestPoint : interest_points) {
       double[] d = new double[2];
       d[0] = interestPoint.getX();
       d[1] = interestPoint.getY();
-      points.add(new DoublePoint(d));
+      if (redArc.contains(d[0], d[1]) || orangeArc.contains(d[0], d[1]) || greenArc
+          .contains(d[0], d[1])) {
+        points.add(new DoublePoint(d));
+      }
     }
 
-    classifyObject(CarFinding.findClusters(points, img, g2d, x, y), g2d, x, y);
+    CarFinding.findClusters(points, img, g2d, x, y);
 
     //        DBSCANClusterer<DoublePoint> dbscan = new DBSCANClusterer<>(10, 10);
     //
@@ -247,50 +308,13 @@ public class ImageAdjaster {
     //        }
 
     //SIMPLE DRAW
+
     for (int i = 0; i < interest_points.size(); i++) {
 
       InterestPoint IP = (InterestPoint) interest_points.get(i);
 
-      if ((int) IP.getX() < w && (int) IP.getY() < h) {
+      if ((int) IP.getX() < width && (int) IP.getY() < height) {
         IP.drawPositionWithG(3, new Color(92, 255, 59), g2d, x, y);
-      }
-    }
-  }
-
-  private static void classifyObject(List<CarData> carDataList, Graphics2D g2d, final int x,
-      final int y) {
-    byte[] graphDef = readAllBytesOrExit(Paths.get("inception5h", "tensorflow_inception_graph.pb"));
-    List<String> labels =
-        readAllLinesOrExit(Paths.get("inception5h", "imagenet_comp_graph_label_strings.txt"));
-
-    for (CarData carData : carDataList) {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      try {
-        ImageIO.write(carData.getCarImage(), "jpg", baos);
-        baos.flush();
-        byte[] imageBytes = baos.toByteArray();
-
-        try (Tensor image = constructAndExecuteGraphToNormalizeImage(imageBytes)) {
-          float[] labelProbabilities = executeInceptionGraph(graphDef, image);
-          int bestLabelIdx = maxIndex(labelProbabilities);
-          String classOfObject = labels.get(bestLabelIdx);
-          System.out.println(
-              String.format(
-                  "BEST MATCH: %s (%.2f%% likely)",
-                  classOfObject, labelProbabilities[bestLabelIdx] * 100f));
-          if (classOfObject.contains("car") || classOfObject.contains("van") || classOfObject
-              .contains("vagon") || classOfObject.contains("vehicle") || classOfObject.contains
-              ("train") || classOfObject.contains("truck") || classOfObject.contains("human") ||
-              classOfObject.contains("bicycle") || classOfObject.contains("container")) {
-            g2d.setColor(Color.RED);
-            g2d.setStroke(new BasicStroke(4));
-            g2d.drawString(classOfObject, x + (int) carData.getCenterPointX(),
-                y + (int) carData.getCenterPointY());
-          }
-        }
-        baos.close();
-      } catch (IOException e) {
-        e.printStackTrace();
       }
     }
   }
@@ -468,140 +492,5 @@ public class ImageAdjaster {
   private static Point midpoint(Point p1, Point p2) {
     return new Point((int) ((p1.x + p2.x) / 2.0),
         (int) ((p1.y + p2.y) / 2.0));
-  }
-
-  private static Tensor constructAndExecuteGraphToNormalizeImage(byte[] imageBytes) {
-    try (Graph g = new Graph()) {
-      GraphBuilder b = new GraphBuilder(g);
-      // Some constants specific to the pre-trained model at:
-      // https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip
-      //
-      // - The model was trained with images scaled to 224x224 pixels.
-      // - The colors, represented as R, G, B in 1-byte each were converted to
-      //   float using (value - Mean)/Scale.
-      final int H = 224;
-      final int W = 224;
-      final float mean = 117f;
-      final float scale = 1f;
-
-      // Since the graph is being constructed once per execution here, we can use a constant for the
-      // input image. If the graph were to be re-used for multiple input images, a placeholder would
-      // have been more appropriate.
-      final Output input = b.constant("input", imageBytes);
-      final Output output =
-          b.div(
-              b.sub(
-                  b.resizeBilinear(
-                      b.expandDims(
-                          b.cast(b.decodeJpeg(input, 3), DataType.FLOAT),
-                          b.constant("make_batch", 0)),
-                      b.constant("size", new int[]{H, W})),
-                  b.constant("mean", mean)),
-              b.constant("scale", scale));
-      try (Session s = new Session(g)) {
-        return s.runner().fetch(output.op().name()).run().get(0);
-      }
-    }
-  }
-
-  private static float[] executeInceptionGraph(byte[] graphDef, Tensor image) {
-    try (Graph g = new Graph()) {
-      g.importGraphDef(graphDef);
-      try (Session s = new Session(g);
-           Tensor result = s.runner().feed("input", image).fetch("output").run().get(0)) {
-        final long[] rshape = result.shape();
-        if (result.numDimensions() != 2 || rshape[0] != 1) {
-          throw new RuntimeException(
-              String.format(
-                  "Expected model to produce a [1 N] shaped tensor where N is the number of labels, instead it produced one with shape %s",
-                  Arrays.toString(rshape)));
-        }
-        int nlabels = (int) rshape[1];
-        return result.copyTo(new float[1][nlabels])[0];
-      }
-    }
-  }
-
-  private static int maxIndex(float[] probabilities) {
-    int best = 0;
-    for (int i = 1; i < probabilities.length; ++i) {
-      if (probabilities[i] > probabilities[best]) {
-        best = i;
-      }
-    }
-    return best;
-  }
-
-  private static byte[] readAllBytesOrExit(Path path) {
-    try {
-      return Files.readAllBytes(path);
-    } catch (IOException e) {
-      System.err.println("Failed to read [" + path + "]: " + e.getMessage());
-      System.exit(1);
-    }
-    return null;
-  }
-
-  private static List<String> readAllLinesOrExit(Path path) {
-    try {
-      return Files.readAllLines(path, Charset.forName("UTF-8"));
-    } catch (IOException e) {
-      System.err.println("Failed to read [" + path + "]: " + e.getMessage());
-      System.exit(0);
-    }
-    return null;
-  }
-
-  // In the fullness of time, equivalents of the methods of this class should be auto-generated from
-  // the OpDefs linked into libtensorflow_jni.so. That would match what is done in other languages
-  // like Python, C++ and Go.
-  static class GraphBuilder {
-    GraphBuilder(Graph g) {
-      this.g = g;
-    }
-
-    Output div(Output x, Output y) {
-      return binaryOp("Div", x, y);
-    }
-
-    Output sub(Output x, Output y) {
-      return binaryOp("Sub", x, y);
-    }
-
-    Output resizeBilinear(Output images, Output size) {
-      return binaryOp("ResizeBilinear", images, size);
-    }
-
-    Output expandDims(Output input, Output dim) {
-      return binaryOp("ExpandDims", input, dim);
-    }
-
-    Output cast(Output value, DataType dtype) {
-      return g.opBuilder("Cast", "Cast").addInput(value).setAttr("DstT", dtype).build().output(0);
-    }
-
-    Output decodeJpeg(Output contents, long channels) {
-      return g.opBuilder("DecodeJpeg", "DecodeJpeg")
-          .addInput(contents)
-          .setAttr("channels", channels)
-          .build()
-          .output(0);
-    }
-
-    Output constant(String name, Object value) {
-      try (Tensor t = Tensor.create(value)) {
-        return g.opBuilder("Const", name)
-            .setAttr("dtype", t.dataType())
-            .setAttr("value", t)
-            .build()
-            .output(0);
-      }
-    }
-
-    private Output binaryOp(String type, Output in1, Output in2) {
-      return g.opBuilder(type, type).addInput(in1).addInput(in2).build().output(0);
-    }
-
-    private Graph g;
   }
 }

@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Arc2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -549,6 +550,27 @@ public class VideoImage extends JFrame {
                 sumxy = x + y;
                 sumwh = width + height;
                 g2.draw(rect);
+
+              Arc2D.Double greenArc = new Arc2D.Double(x, y + height * 1 / 4, width,
+                  height + height * 1 / 2, 0, 180,
+                  Arc2D.OPEN);
+              Arc2D.Double orangeArc = new Arc2D.Double(x, y + height * 2/ 4, width,
+                  height , 0, 180,
+                  Arc2D.OPEN);
+              Arc2D.Double redArc = new Arc2D.Double(x, y + height * 3 / 4, width,
+                  height-height * 1 / 2, 0, 180,
+                  Arc2D.OPEN);
+              g2.draw(greenArc);
+              g2.setColor(Color.ORANGE);
+              pen = new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL, 7, dashl, 0);
+              g2.setStroke(pen);
+
+              g2.draw(orangeArc);
+              g2.setColor(Color.RED);
+              pen = new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL, 7, dashl, 0);
+              g2.setStroke(pen);
+
+              g2.draw(redArc);
 
             }
             if (showStatTitle) {
