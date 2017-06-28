@@ -13,6 +13,7 @@ import com.xuggle.mediatool.MediaListenerAdapter;
 import com.xuggle.mediatool.ToolFactory;
 import com.xuggle.mediatool.event.IVideoPictureEvent;
 import com.xuggle.xuggler.*;
+import org.apache.commons.lang.SystemUtils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -432,6 +433,11 @@ public class ElastoGo {
                     IContainerFormat format = IContainerFormat.make();
 
                     //!!
+                    if(SystemUtils.IS_OS_LINUX){
+                        driverName = "video4linux2";
+                        deviceName = "/dev/video0";
+                    }
+
                     if (format.setInputFormat(driverName) < 0)
                         throw new IllegalArgumentException("couldn't open device: " + driverName);
 
