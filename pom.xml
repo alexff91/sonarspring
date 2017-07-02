@@ -69,18 +69,14 @@
         </dependency>
     </dependencies>
 
-<repositories>
-
-  <repository>
-
-    <id>xuggle repo</id>
-
-    <url>https://files.liferay.com/mirrors/xuggle.googlecode.com/svn/trunk/repo/share/java/</url>
-
-  </repository>
-
-</repositories>
-
+    <repositories>
+        <repository>
+            <id>xuggle repo</id>
+            <url>
+                https://files.liferay.com/mirrors/xuggle.googlecode.com/svn/trunk/repo/share/java/
+            </url>
+        </repository>
+    </repositories>
 
 
     <build>
@@ -135,6 +131,21 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <!-- Build an executable JAR -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>com.uzielasto.app.ElastoGo</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>
