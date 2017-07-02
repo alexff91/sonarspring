@@ -69,13 +69,19 @@
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>xuggle repo</id>
-            <url>https://github.com/lxb200709/xuggle/tree/master/repo/share/java/xuggle/xuggle
-                -xuggler/5.4</url>
-        </repository>
-    </repositories>
+<repositories>
+
+  <repository>
+
+    <id>xuggle repo</id>
+
+    <url>https://files.liferay.com/mirrors/xuggle.googlecode.com/svn/trunk/repo/share/java/</url>
+
+  </repository>
+
+</repositories>
+
+
 
     <build>
         <pluginManagement>
