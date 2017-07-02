@@ -72,7 +72,8 @@
     <repositories>
         <repository>
             <id>xuggle repo</id>
-            <url>https://github.com/lxb200709/xuggle/tree/master/repo/share/java/xuggle/xuggle-xuggler</url>
+            <url>https://github.com/lxb200709/xuggle/tree/master/repo/share/java/xuggle/xuggle
+                -xuggler/5.4</url>
         </repository>
     </repositories>
 
