@@ -70,12 +70,10 @@
     </dependencies>
 
     <repositories>
-
         <repository>
             <id>xuggle repo</id>
-            <url>http://xuggle.googlecode.com/svn/trunk/repo/share/java/</url>
+            <url>https://github.com/lxb200709/xuggle/tree/master/repo/share/java/xuggle/xuggle-xuggler</url>
         </repository>
-
     </repositories>
 
     <build>
