@@ -323,7 +323,7 @@ public class ElastoGo {
                     // for Xuggler to know how to configure them, for a webcam, these
                     // parameters make sense
 
-                    piCamera.setWidth(200).setHeight(200) // Set Camera to produce 500x500 images.
+                    piCamera.setWidth(400).setHeight(400) // Set Camera to produce 500x500 images.
                             .setBrightness(75)                // Adjust Camera's brightness setting.
                             .setExposure(Exposure.AUTO)       // Set Camera's exposure.
                             .setTimeout(5)                    // Set Camera's timeout.
@@ -333,7 +333,6 @@ public class ElastoGo {
 
                     while (nuller) {
                         try {
-                            Thread.sleep(300);
                             javaImage = piCamera.takeBufferedStill();
                         } catch (IOException | InterruptedException e) {
                             e.printStackTrace();
