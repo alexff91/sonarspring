@@ -13,29 +13,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
-        <!--<dependency>-->
-        <!--<groupId>xuggle</groupId>-->
-        <!--<artifactId>xuggle-xuggler</artifactId>-->
-        <!--<version>5.4</version>-->
-        <!--</dependency>-->
-        <!-- https://mvnrepository.com/artifact/javax.media/jmf -->
         <dependency>
             <groupId>javax.media</groupId>
             <artifactId>jmf</artifactId>
             <version>2.1.1e</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.slf4j</groupId>-->
-        <!--<artifactId>slf4j-log4j12</artifactId>-->
-        <!--<version>1.7.22</version>-->
-        <!--</dependency>-->
-        <!-- https://mvnrepository.com/artifact/org.scala-lang/scala-library -->
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>2.10.2</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -80,12 +62,6 @@
 
     <repositories>
         <repository>
-            <id>xuggle repo</id>
-            <url>https://github.com/lxb200709/xuggle/tree/master/repo/share/java/xuggle/xuggle
-                -xuggler/5.4
-            </url>
-        </repository>
-        <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
@@ -94,35 +70,19 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>scala-maven-plugin</artifactId>
-                <version>3.1.6</version>
+                <!-- Build an executable JAR -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
                 <configuration>
-                    <recompileMode>incremental</recompileMode>
-                    <args>
-                        <arg>-deprecation</arg>
-                        <arg>-explaintypes</arg>
-                        <arg>-target:jvm-1.7</arg>
-                    </args>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>com.idas.app.ElastoGo</mainClass>
+                        </manifest>
+                    </archive>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>scala-compile-first</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>scala-test-compile</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
