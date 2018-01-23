@@ -146,7 +146,7 @@ public class VideoImage extends JFrame {
             public void componentResized(ComponentEvent e) {
                 int w = ip.getWidth();
                 int h = ip.getHeight();
-                if (h > 0 && w > 0 && h != myPicture.getHeight()) {
+                if (myPicture!= null && h > 0 && w > 0 && h != myPicture.getHeight()) {
                     Image scaledImage = myPicture.getScaledInstance((int) (w / 1.2), (int) (h / 1.1), 1);
 
                     BufferedImage img = new BufferedImage((int) (w / 1.2), (int) (h / 1.1), BufferedImage.TYPE_3BYTE_BGR);
