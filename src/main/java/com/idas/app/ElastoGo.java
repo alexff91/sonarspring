@@ -140,14 +140,11 @@ public class ElastoGo {
     }
 
     static Thread runAsynchronouslyMethod3(final ElastoGo obj) {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    updateLoop();
-                } catch (Exception e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
+        Thread t = new Thread(() -> {
+            try {
+                updateLoop();
+            } catch (Exception e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
         });
         t.start();
@@ -326,11 +323,12 @@ public class ElastoGo {
                     // for Xuggler to know how to configure them, for a webcam, these
                     // parameters make sense
 
-                    piCamera.setWidth(500).setHeight(500) // Set Camera to produce 500x500 images.
+                    piCamera.setWidth(200).setHeight(200) // Set Camera to produce 500x500 images.
                             .setBrightness(75)                // Adjust Camera's brightness setting.
                             .setExposure(Exposure.AUTO)       // Set Camera's exposure.
-                            .setTimeout(2)                    // Set Camera's timeout.
-                            .setAddRawBayer(true);            // Add Raw Bayer data to image files created by Camera.
+                            .setTimeout(5)                    // Set Camera's timeout.
+                            .setAddRawBayer(true)
+                            .setTimestampOn();            // Add Raw Bayer data to image files created by Camera.
 
 
                     while (nuller) {
@@ -365,7 +363,7 @@ public class ElastoGo {
 
             if (ImageAdjaster.quantoIm) {
                 if (framesColored.size() > 30) {
-                    framesColored = new LinkedList<BufferedImage>(framesColored.subList(15, 30));
+                    framesColored = new LinkedList<>(framesColored.subList(15, 30));
                 }
                 //if (framesColored.size() > 30) framesColored.clear();
                 if (counter % 5 == 0) {
