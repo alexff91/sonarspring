@@ -5,7 +5,6 @@
 package com.uzielasto.app;
 
 import com.uzielasto.app.javasurf.src.main.java.org.javasurf.base.*;
-import com.uzielasto.app.scala.Quantizer;
 import com.uzielasto.app.tensorflow.CarData;
 import com.uzielasto.app.tensorflow.CarFinding;
 import org.apache.commons.math3.ml.clustering.Cluster;
@@ -135,36 +134,8 @@ public class ImageAdjaster {
       //      IDescriptor descriptor = mySURF.createDescriptor(interest_points);
       //      descriptor.generateAllDescriptors();
       img = ElastoGo.getRGBScale(img);
-      BufferedImage imgAcc = AppletMaker.deepCopy(img);
       // img = Quantizer.quantoImageAveraged(li, img, x, y, w, h, sq);
       Graphics2D g2 = (Graphics2D) img.getGraphics();
-      if (quantoIm) {
-        QuantizedImage quantizedImage = Quantizer.quantoImageAveraged(mScreen, li, img, x, y, w,
-            h, sq);
-        img = quantizedImage.getImage();
-        g2 = (Graphics2D) img.getGraphics();
-        Font font = new Font("Serif", Font.PLAIN, 30);
-        g2.setFont(font);
-        if (quantizedImage.getRedArcValues()[4] >= 20) {
-          g2.setColor(new Color(255, 19, 0));
-          g2.drawString("Emergency! Collision prediction", w / 3, h / 3);
-        } else if (quantizedImage.getRedArcValues()[4] >= 10) {
-          g2.setColor(new Color(255, 187, 41));
-          g2.drawString("Objects in a safety zone", w / 3, h / 3);
-        } else if (quantizedImage.getOrangeArcValues()[4] >= 20) {
-          g2.setColor(new Color(255, 239, 9));
-          g2.drawString("Collision ahead prediction", w / 3, h / 3);
-        } else if (quantizedImage.getOrangeArcValues()[4] >= 10) {
-          g2.setColor(new Color(159, 255, 0));
-          g2.drawString("Possible collision ahead", w / 3, h / 3);
-        } else if (quantizedImage.getGreenArcValues()[4] >= 20) {
-          g2.setColor(new Color(255, 239, 9));
-          g2.drawString("Collision ahead prediction", w / 3, h / 3);
-        } else if (quantizedImage.getGreenArcValues()[4] >= 10) {
-          g2.setColor(new Color(159, 255, 0));
-          g2.drawString("Possible collision ahead", w / 3, h / 3);
-        }
-      }
       // if (invertFlag) img = HistogramEq.invertImage(img);
 
       g2.setColor(new Color(255, 249, 6));
@@ -204,35 +175,6 @@ public class ImageAdjaster {
       } catch (Exception e) {
         prevDescriptors = null;
         log.log(Level.SEVERE, "Exception: ", e);
-      }
-    } else {
-      if (quantoIm) {
-        QuantizedImage quantizedImage = Quantizer.quantoImageAveraged(mScreen, li, img, x, y, w,
-            h, sq);
-        img = quantizedImage.getImage();
-
-        Graphics2D g2 = (Graphics2D) img.getGraphics();
-        Font font = new Font("Serif", Font.PLAIN, 30);
-        g2.setFont(font);
-        if (quantizedImage.getRedArcValues()[4] >= 10) {
-          g2.setColor(new Color(255, 19, 0));
-          g2.drawString("Emergency! Collision prediction", w / 3, h / 3);
-        } else if (quantizedImage.getRedArcValues()[4] >= 0) {
-          g2.setColor(new Color(255, 187, 41));
-          g2.drawString("Emergency! Possible collision", w / 3, h / 3);
-        } else if (quantizedImage.getOrangeArcValues()[4] >= 10) {
-          g2.setColor(new Color(255, 239, 9));
-          g2.drawString("Emergency! Collision ahead prediction", w / 3, h / 3);
-        } else if (quantizedImage.getOrangeArcValues()[4] >= 0) {
-          g2.setColor(new Color(159, 255, 0));
-          g2.drawString("Emergency! Possible collision ahead", w / 3, h / 3);
-        } else if (quantizedImage.getGreenArcValues()[4] >= 10) {
-          g2.setColor(new Color(255, 239, 9));
-          g2.drawString("Emergency! Collision ahead prediction", w / 3, h / 3);
-        } else if (quantizedImage.getGreenArcValues()[4] >= 0) {
-          g2.setColor(new Color(159, 255, 0));
-          g2.drawString("Emergency! Possible collision ahead", w / 3, h / 3);
-        }
       }
     }
     //        File out =new File("C:\\Users\\Aleksandr\\Desktop\\uzi_proj\\my-app\\surf1.png");

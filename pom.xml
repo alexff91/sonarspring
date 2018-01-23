@@ -3,32 +3,32 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.spbstu.cst</groupId>
-    <artifactId>sonarspring</artifactId>
+    <artifactId>idas</artifactId>
     <packaging>jar</packaging>
     <version>1.0-2</version>
-    <name>sonarspring</name>
+    <name>idas</name>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>xuggle</groupId>
-            <artifactId>xuggle-xuggler</artifactId>
-            <version>5.4</version>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>xuggle</groupId>-->
+        <!--<artifactId>xuggle-xuggler</artifactId>-->
+        <!--<version>5.4</version>-->
+        <!--</dependency>-->
         <!-- https://mvnrepository.com/artifact/javax.media/jmf -->
         <dependency>
             <groupId>javax.media</groupId>
             <artifactId>jmf</artifactId>
             <version>2.1.1e</version>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.22</version>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.slf4j</groupId>-->
+        <!--<artifactId>slf4j-log4j12</artifactId>-->
+        <!--<version>1.7.22</version>-->
+        <!--</dependency>-->
         <!-- https://mvnrepository.com/artifact/org.scala-lang/scala-library -->
         <dependency>
             <groupId>org.scala-lang</groupId>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>org.tensorflow</groupId>
             <artifactId>tensorflow</artifactId>
-            <version>1.1.0</version>
+            <version>LATEST</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -62,7 +62,7 @@
         <dependency>
             <groupId>com.edwardraff</groupId>
             <artifactId>JSAT</artifactId>
-            <version>0.0.7</version>
+            <version>LATEST</version>
         </dependency>
 
         <dependency>
@@ -71,7 +71,11 @@
             <version>1.1.3</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/xuggle/xuggle-xuggler -->
-
+        <dependency>
+            <groupId>com.github.Hopding</groupId>
+            <artifactId>JRPiCam</artifactId>
+            <version>v1.1.1</version>
+        </dependency>
     </dependencies>
 
     <repositories>
@@ -80,6 +84,10 @@
             <url>https://github.com/lxb200709/xuggle/tree/master/repo/share/java/xuggle/xuggle
                 -xuggler/5.4
             </url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
