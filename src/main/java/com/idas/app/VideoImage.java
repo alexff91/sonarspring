@@ -144,8 +144,8 @@ public class VideoImage extends JFrame {
         this.addComponentListener(new ComponentListener() {
             @Override
             public void componentResized(ComponentEvent e) {
-                int w = (int) ip.getWidth();
-                int h = (int) ip.getHeight();
+                int w = ip.getWidth();
+                int h = ip.getHeight();
                 if (h > 0 && w > 0 && h != myPicture.getHeight()) {
                     Image scaledImage = myPicture.getScaledInstance((int) (w / 1.2), (int) (h / 1.1), 1);
 

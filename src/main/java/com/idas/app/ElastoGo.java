@@ -297,15 +297,12 @@ public class ElastoGo {
 
     static Thread runAsynchronouslyMethod2(final ElastoGo obj) {
 
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
+        Thread t = new Thread(() -> {
 
-                try {
-                    obj.tain();
-                } catch (Exception e) {
-                    //                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
+            try {
+                obj.tain();
+            } catch (Exception e) {
+                //                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
         });
         try {
@@ -338,7 +335,8 @@ public class ElastoGo {
 
                     while (nuller) {
                         try {
-                            javaImage = (BufferedImage) piCamera.takeBufferedStill();
+                            Thread.sleep(300);
+                            javaImage = piCamera.takeBufferedStill();
                         } catch (IOException | InterruptedException e) {
                             e.printStackTrace();
                         }
